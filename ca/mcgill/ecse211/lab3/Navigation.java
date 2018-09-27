@@ -80,7 +80,7 @@ public class Navigation {
 		Thread odoCorrectionThread = new Thread(odometryCorrection);
 		odoCorrectionThread.start();
 		for(int index = 0 ; index < path.length ; index++ ) {
-			travelTo(path[index], path[index+1]);
+		//	travelTo(path[index], path[index+1]);
 		}
 
 		// Wait here forever until button pressed to terminate
