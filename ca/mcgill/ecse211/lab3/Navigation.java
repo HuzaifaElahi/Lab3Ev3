@@ -20,7 +20,8 @@ public class Navigation {
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 	public static final double WHEEL_RAD = 2.2;
 	public static final double TRACK = 13.72;
-	private static double[] path;
+	double[] path;
+	private static Navigation nav;
 
 	//Motors and distance sensor
 	private static final Port usPort = LocalEV3.get().getPort("S1");
@@ -36,7 +37,7 @@ public class Navigation {
 	static float[] sampleColor = new float[myColor.sampleSize()]; 
 
 	public static void main(String[] args) throws Exception {
-
+		nav = new Navigation();
 		int option = 0;
 		while (option == 0) // and wait for a button press. The button
 			option = Button.waitForAnyPress(); // ID (option) determines what type of control to use
@@ -46,7 +47,7 @@ public class Navigation {
 			double []pathBuff1 = {60, 30,30, 30,30, 60,60, 0};
 			int i = 0;
 			for(double d : pathBuff1) {
-				path[i] = d;
+				nav.path[i] = d;
 				i++;
 			}
 			break;
@@ -55,7 +56,7 @@ public class Navigation {
 			double []pathBuff2 = {0, 60,60, 0};
 			int j = 0;
 			for(double d : pathBuff2) {
-				path[j] = d;
+				nav.path[j] = d;
 				j++;
 			}
 			break;
@@ -79,9 +80,13 @@ public class Navigation {
 		odoThread.start();
 		Thread odoCorrectionThread = new Thread(odometryCorrection);
 		odoCorrectionThread.start();
-		for(int index = 0 ; index < path.length ; index++ ) {
-		//	travelTo(path[index], path[index+1]);
-		}
+		
+		(new Thread() {
+	        public void run() {
+	          Controller.drive(nav,leftMotor, rightMotor, WHEEL_RAD, WHEEL_RAD, TRACK);
+	        }
+	      }).start();
+
 
 		// Wait here forever until button pressed to terminate
 		Button.waitForAnyPress();

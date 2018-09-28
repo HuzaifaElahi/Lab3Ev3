@@ -92,6 +92,8 @@ public class OdometryCorrection implements Runnable {
 
 				//Error handling 
 				if(result != null) {
+					
+					// TODO Apply new correction
 
 				}
 
