@@ -8,7 +8,7 @@ public class Controller {
 			double wheelRad2, double track) {
 		// TODO Auto-generated method stub
 	    
-		for(int index = 0 ; index < nav.path.length ; index++ ) {
+		for(int index = 0 ; index < nav.path.length -1 ; index++ ) {
 			nav.travelTo(nav.path[index], nav.path[index+1]);
 		}
 		
