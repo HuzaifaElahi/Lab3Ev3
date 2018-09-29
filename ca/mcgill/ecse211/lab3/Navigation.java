@@ -57,7 +57,6 @@ public class Navigation extends Thread implements Runnable {
     odometer.setXYT(0, 0, 0);
 
     for(int index = 0 ; index < path.length - 1;) {
-    	System.out.print("FUCK DPM");
       travelTo(path[index++], path[index++]);
       } 
   }
@@ -111,9 +110,6 @@ public class Navigation extends Thread implements Runnable {
 		// Move distance to the waypoint after robot has adjusted angle
 		leftMotor.rotate(convertDistance(WHEEL_RAD, dist), true);
 		rightMotor.rotate(convertDistance(WHEEL_RAD, dist), false);
-		
-		System.out.println(path[0] + "" + path[1]);
-		System.out.println(odometer[0] + "" + odometer[1]);
 
 	}
 	/**

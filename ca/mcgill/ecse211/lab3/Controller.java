@@ -6,12 +6,18 @@ import lejos.hardware.lcd.TextLCD;
 
 
 public class Controller {
-	
+	/*
+	 * 
+	 * Map 1: (0,2), (1,1), (2,2), (2,1), (1,0)
+	 * Map 2: (1,1), (0,2), (2,2), (2,1), (1,0)
+	 * Map 3: (1,0), (2,1), (2,2), (0,2), (1,1)
+	 * Map 4: (0,1), (1,2), (1,0), (2,1), (2,2)
+	 */
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
-	static double[] path1 = {0, 2,     1, 1,     2, 2,     2, 1,   1,0 };
-	static double[] path2 = {0, 1};
-	static double[] path3 = {0, 1};
-	static double[] path4 = {0, 1};
+	static double[] path1 = {0, 2,     1, 1,     2, 2,     2, 1,   1, 0};
+	static double[] path2 = {1, 1,     0, 2,     2, 2,     2, 1,   1, 0};
+	static double[] path3 = {1, 0,     2, 1,     0, 2,     0, 2,   1, 1};
+	static double[] path4 = {0, 1,     1, 2,     1, 0,     2, 1,   2, 2};
 	static double[] finalPath;
 
 	public static void main(String[] args) throws Exception {
