@@ -15,7 +15,8 @@ public class Navigation extends Thread implements Runnable {
   public static final double WHEEL_RAD = 2.2;
   public static final double SQUARE_SIZE = 30.48;
   public static final double TRACK = 13.72;
-  double[] path= {0, 2,     1, 1,     2, 2,     2, 1,   1,0  };
+  double[] path;
+  
 
   
   //Motors and distance sensor
@@ -25,12 +26,13 @@ public class Navigation extends Thread implements Runnable {
   public static final EV3LargeRegulatedMotor rightMotor =
       new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
 
+  public Navigation(double ... path) {
+	  this.path = path;
+  }
 
   
   // Variables for odometer
   Odometer odometer = null;
-  //OdometryCorrection odometryCorrection = null;
-
 
   public void run() {
 
@@ -181,12 +183,4 @@ public class Navigation extends Thread implements Runnable {
     return convertDistance(radius, Math.PI * width * angle / 360.0);
   }
 
-/*
-  // TODO this method returns true if another thread has called travelTo() or turnTo()
-  // and the method has yet to return; false otherwise.
-  boolean isNavigating() {
-    return false;
-
-  }
-*/
 }

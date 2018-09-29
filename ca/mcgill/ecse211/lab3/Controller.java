@@ -3,52 +3,82 @@ package ca.mcgill.ecse211.lab3;
 import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
-import lejos.hardware.motor.EV3LargeRegulatedMotor;
-import lejos.hardware.sensor.EV3UltrasonicSensor;
-import lejos.hardware.sensor.SensorModes;
-import lejos.robotics.SampleProvider;
+
 
 public class Controller {
-	  
-  public static void main(String[] args) throws Exception {
-    Navigation nav = new Navigation();
-   
-   /* int option = 0;
-    while (option == 0) // and wait for a button press. The button
-      option = Button.waitForAnyPress(); // ID (option) determines what type of control to use
-    switch (option) {
-      case Button.ID_LEFT:
-        // run 1
-        double []pathBuff1 = {60, 30,30, 30,30, 60,60, 0};
-        int i = 0;
-        for(double d : pathBuff1) {
-          nav.path[i] = d;
-          i++;
-        }
-        break;
-      case Button.ID_RIGHT:
-        // run 2
-        double []pathBuff2 = {0, 60,60, 0};
-        int j = 0;
-        for(double d : pathBuff2) {
-          nav.path[j] = d;
-          j++;
-        }
-        break;
-      default:
-    }
-    Button.waitForAnyPress();*/
+	
+	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
+	static double[] path1 = {0, 2,     1, 1,     2, 2,     2, 1,   1,0 };
+	static double[] path2 = {0, 1};
+	static double[] path3 = {0, 1};
+	static double[] path4 = {0, 1};
+	static double[] finalPath;
 
-    nav.start();
-  
-    while (Button.waitForAnyPress() != Button.ID_ESCAPE)
-		;
-	System.exit(0);
-      
-    
-    
-  }
-	
-	
+	public static void main(String[] args) throws Exception {
+		
+		int buttonChoice;
+
+		
+		do {
+		      // clear the display
+		      lcd.clear();
+
+		      // ask the user whether the motors should drive in a square or float
+		      lcd.drawString("<Map 1 | Map 3>", 0, 0);
+		      lcd.drawString("       |       ", 0, 1);
+		      lcd.drawString(" Map 2 | Map 4 ", 0, 2);
+		      lcd.drawString("       |       ", 0, 3);
+		      lcd.drawString("       |       ", 0, 4);
+
+		      buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
+		    } while (buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT);
+
+		    if (buttonChoice == Button.ID_LEFT) {
+		      // Float the motors
+		    	 lcd.drawString("<      |      >", 0, 0);
+			     lcd.drawString("       |       ", 0, 1);
+			     lcd.drawString(" Map 1 | Map 2 ", 0, 2);
+			     lcd.drawString("       |       ", 0, 3);
+			     lcd.drawString("       |       ", 0, 4);
+			     buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
+			     if (buttonChoice == Button.ID_RIGHT) {
+			    	 finalPath = path2;
+			      }
+			     else {
+			    	 finalPath = path1;
+			     }
+
+		    } else {
+		      // clear the display
+		      lcd.clear();
+
+		      // ask the user whether odometery correction should be run or not
+		      	 lcd.drawString("<      |      >", 0, 0);
+			     lcd.drawString("       |       ", 0, 1);
+			     lcd.drawString(" Map 3 | Map 4 ", 0, 2);
+			     lcd.drawString("       |       ", 0, 3);
+			     lcd.drawString("       |       ", 0, 4);
+
+		      buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
+		      
+		      if (buttonChoice == Button.ID_RIGHT) {
+			    	 finalPath = path4;
+			      }
+			     else {
+			    	 finalPath = path3;
+			     }
+		    }
+		
+		
+		Navigation nav = new Navigation(finalPath);
+		nav.start();
+
+		while (Button.waitForAnyPress() != Button.ID_ESCAPE)
+			;
+		System.exit(0);
+
+
+
+	}
 
 }
