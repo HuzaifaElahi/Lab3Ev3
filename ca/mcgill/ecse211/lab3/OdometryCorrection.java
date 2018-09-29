@@ -41,7 +41,7 @@ public class OdometryCorrection implements Runnable {
 		this.odometer = Odometer.getOdometer();
 
 		//Color sensor data and variable initialization
-		color = new float[Navigation.myColorSample.sampleSize()];
+	//	color = new float[Navigation.myColorSample.sampleSize()];
 		this.csData = color;
 		oldResult[0] = 0;
 		oldResult[1] = 0;
@@ -72,15 +72,11 @@ public class OdometryCorrection implements Runnable {
 	public void run() {
 		long correctionStart, correctionEnd;
 
-		//color sensor and scaling
-		Navigation.myColorSample.fetchSample(color, 0);
-		newColor = csData[0];
-
 		while (true) {
 			correctionStart = System.currentTimeMillis();
 
 			// Trigger correction : store data in newColor
-			Navigation.myColorSample.fetchSample(color, 0);
+	//		Navigation.myColorSample.fetchSample(color, 0);
 			newColor = csData[0];
 
 			// Store current robot position and current theta
