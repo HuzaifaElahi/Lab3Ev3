@@ -18,6 +18,7 @@ public class NavWithObstacle extends Thread implements Runnable, UltrasonicContr
 	private static final int ROTATE_SPEED = 150;
 	private static final int bandWidth = 2;
 	private static final int bandCenter = 15;
+	private boolean isDanger = false;
 
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 	public static final double WHEEL_RAD = 2.2;
@@ -38,17 +39,17 @@ public class NavWithObstacle extends Thread implements Runnable, UltrasonicContr
 
 	// Variables for odometer
 	Odometer odometer = null;
-	
+
 	private int distance;
-	
-	
+
+
 	public NavWithObstacle(int ... finalPath) {
 		this.path = finalPath;
 	}
 
 
 	public void run() {
-	    usPoller.start();
+		usPoller.start();
 
 		try {
 			odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
@@ -188,38 +189,13 @@ public class NavWithObstacle extends Thread implements Runnable, UltrasonicContr
 	private static int convertAngle(double radius, double width, double angle) {
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
-	
+
 	@Override
 	public void processUSData(int distance) {
 		this.distance = distance;
 		// TODO: process a movement based on the us distance passed in (BANG-BANG style)
 		if(distance < 10) {
-	/*.setSpeed(MOTOR_HIGH);
-			rightMotor.setSpeed(MOTOR_LOW);
-			leftMotor.forward();
-			rightMotor.forward();*/
-			
-			
-			if(odometer.getXYT()[0]<2.4*30.48&&odometer.getXYT()[0]>1.3*30.48&&odometer.getXYT()[1]<2.5*30.48&&odometer.getXYT()[1]>1.6*30.48){
-				leftMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, 90), true);  // turn when facing obstacle and travel a certain distance and then turn again 
-				rightMotor.rotate(convertAngle(WHEEL_RAD, TRACK, 90), false);// then travel a certain distance
-				leftMotor.rotate(convertDistance(WHEEL_RAD, 30), true);
-				rightMotor.rotate(convertDistance(WHEEL_RAD, 30), false);
-				leftMotor.rotate(convertAngle(WHEEL_RAD, TRACK, 90), true);
-				rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, 90), false);
-				leftMotor.rotate(convertDistance(WHEEL_RAD, 40), true);
-				rightMotor.rotate(convertDistance(WHEEL_RAD, 40), false);
-			}
-			else {
-			leftMotor.rotate(convertAngle(WHEEL_RAD, TRACK, 90), true);  // turn when facing obstacle and travel a certain distance and then turn again 
-			rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, 90), false);// then travel a certain distance
-			leftMotor.rotate(convertDistance(WHEEL_RAD, 30), true);
-			rightMotor.rotate(convertDistance(WHEEL_RAD, 30), false);
-			leftMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, 90), true);
-			rightMotor.rotate(convertAngle(WHEEL_RAD, TRACK, 90), false);
-			leftMotor.rotate(convertDistance(WHEEL_RAD, 40), true);
-			rightMotor.rotate(convertDistance(WHEEL_RAD, 40), false);
-			}
+			isDanger = true;
 		} 		
 	}
 
