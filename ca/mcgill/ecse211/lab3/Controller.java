@@ -14,11 +14,11 @@ public class Controller {
 	 * Map 4: (0,1), (1,2), (1,0), (2,1), (2,2)
 	 */
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
-	static double[] path1 = {0, 2,     1, 1,     2, 2,     2, 1,   1, 0};
-	static double[] path2 = {1, 1,     0, 2,     2, 2,     2, 1,   1, 0};
-	static double[] path3 = {1, 0,     2, 1,     0, 2,     0, 2,   1, 1};
-	static double[] path4 = {0, 1,     1, 2,     1, 0,     2, 1,   2, 2};
-	static double[] finalPath;
+	static int[] path1 = {0, 2,     1, 1,     2, 2,     2, 1,   1, 0};
+	static int[] path2 = {1, 1,     0, 2,     2, 2,     2, 1,   1, 0};
+	static int[] path3 = {1, 0,     2, 1,     0, 2,     0, 2,   1, 1};
+	static int[] path4 = {0, 1,     1, 2,     1, 0,     2, 1,   2, 2};
+	static int[] finalPath;
 
 	public static void main(String[] args) throws Exception {
 		

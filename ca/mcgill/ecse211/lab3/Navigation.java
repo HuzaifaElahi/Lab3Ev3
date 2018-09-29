@@ -15,7 +15,7 @@ public class Navigation extends Thread implements Runnable {
   public static final double WHEEL_RAD = 2.2;
   public static final double SQUARE_SIZE = 30.48;
   public static final double TRACK = 13.72;
-  double[] path;
+  int[] path;
   
 
   
@@ -26,10 +26,9 @@ public class Navigation extends Thread implements Runnable {
   public static final EV3LargeRegulatedMotor rightMotor =
       new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
 
-  public Navigation(double ... path) {
-	  this.path = path;
+  public Navigation(int ... finalPath) {
+	  this.path = finalPath;
   }
-
   
   // Variables for odometer
   Odometer odometer = null;
@@ -39,21 +38,17 @@ public class Navigation extends Thread implements Runnable {
     try {
       odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
     try {
       //odometryCorrection = new OdometryCorrection();
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
     Thread odoThread = new Thread(odometer);
     odoThread.start();
-    //Thread odoCorrectionThread = new Thread(odometryCorrection);
-    //odoCorrectionThread.start();
     odometer.setXYT(0, 0, 0);
 
     for(int index = 0 ; index < path.length - 1;) {
