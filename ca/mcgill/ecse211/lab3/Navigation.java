@@ -15,7 +15,7 @@ public class Navigation extends Thread implements Runnable {
   public static final double WHEEL_RAD = 2.2;
   public static final double SQUARE_SIZE = 30.48;
   public static final double TRACK = 13.72;
-  double[] path= {0, 60,     30, 30,     60, 60,     60, 0};
+  double[] path= {0, 2,     1, 1,     2, 2,     2, 1,   1,0  };
 
   
   //Motors and distance sensor
@@ -54,9 +54,9 @@ public class Navigation extends Thread implements Runnable {
     //odoCorrectionThread.start();
     odometer.setXYT(0, 0, 0);
 
-    for(int index = 0 ; index < path.length - 3; index += 2 ) {
+    for(int index = 0 ; index < path.length - 1;) {
     	System.out.print("FUCK DPM");
-      travelTo(path[index], path[index+1]);
+      travelTo(path[index++], path[index++]);
       } 
   }
   
@@ -156,87 +156,6 @@ public class Navigation extends Thread implements Runnable {
 	public static boolean isNavigating() {
 		return navigating;
 	}
-
-/*
-  // TODO This method causes the robot to travel to the absolute field location (x,  y),
-  // specified  in tilepoints.This method should continuously call turnTo(double theta)
-  // and then set the motor speed to forward(straight). This makes sure heading is updated
-  // till you reach your destination. This method will poll the odometer for information
-  void travelTo(double x, double y) {
-    navigating = true;
-    double[] result = odometer.getXYT();
-    double odoX = result[0];
-    double odoY = result[1];
-    double odoTheta = result[2];
-    double difX = x - odoX;
-    double difY = y - odoY;
-
-    turnTo(Math.atan2(difY, difX));
-
-    leftMotor.forward();
-    rightMotor.forward();
-
-    while (navigating) {
-      leftMotor.setSpeed(MOTOR_HIGH);
-      rightMotor.setSpeed(MOTOR_HIGH);
-      leftMotor.forward();
-      rightMotor.forward();
-
-      result = odometer.getXYT();
-      odoX = result[0];
-      odoY = result[1];
-
-      difX = x - odoX;
-      difY = y - odoY;
-      
-      if (Math.pow(difX,2) + Math.pow(difY, 2) < 0.5) {
-        leftMotor.stop(true);
-        rightMotor.stop(false);
-        navigating = false;
-        return;
-      }
-
-
-
-    }    
-
-  }
-
-
-  // TODO This method causes the robot to turn (on point) to the absolute heading theta.
-  // This method should turn a MINIMAL angle to its target
-  void turnTo(double theta) {
-
-    double[] result = odometer.getXYT();
-    double headingAngle = result[2];
-
-    // Convert theta to degrees
-    double thetaDegrees = Math.toDegrees(theta);
-
-    double newTheta = thetaDegrees - headingAngle;
-
-    // Motor speed for rotation
-    leftMotor.setSpeed(ROTATE_SPEED);
-    rightMotor.setSpeed(ROTATE_SPEED);
-    
-    leftMotor.setSpeed(MOTOR_HIGH);
-    rightMotor.setSpeed(MOTOR_HIGH);
-    leftMotor.forward();
-    rightMotor.forward();
-
-
-    // Turns clockwise
-    if (newTheta <= 0) {
-      leftMotor.rotate(convertAngle(WHEEL_RAD, TRACK, thetaDegrees), true);
-      rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, thetaDegrees), false);
-    }
-
-    // Turns anti-clockwise
-    if (newTheta > 0) {
-      leftMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, thetaDegrees), true);
-      rightMotor.rotate(convertAngle(WHEEL_RAD, TRACK, thetaDegrees), false); 
-    }
-  } */
 
   /**
    * This method is a helper that allows the conversion of a distance to the total rotation of each wheel need to
