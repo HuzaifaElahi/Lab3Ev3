@@ -46,7 +46,7 @@ public class Odometer extends OdometerData implements Runnable {
    * @throws OdometerExceptions
    */
   private Odometer(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor,
-      final double TRACK, final double WHEEL_RAD) throws Exception {
+      final double TRACK, final double WHEEL_RAD) throws OdometerExceptions {
     odoData = OdometerData.getOdometerData(); // Allows access to x,y,z
                                               // manipulation methods
     this.leftMotor = leftMotor;
@@ -78,7 +78,7 @@ public class Odometer extends OdometerData implements Runnable {
    */
   public synchronized static Odometer getOdometer(EV3LargeRegulatedMotor leftMotor,
       EV3LargeRegulatedMotor rightMotor, final double TRACK, final double WHEEL_RAD)
-      throws Exception {
+      throws OdometerExceptions {
     if (odo != null) { // Return existing object
       return odo;
     } else { // create object and return it
@@ -93,10 +93,10 @@ public class Odometer extends OdometerData implements Runnable {
    * 
    * @return error if no previous odometer exists
    */
-  public synchronized static Odometer getOdometer() throws Exception {
+  public synchronized static Odometer getOdometer() throws OdometerExceptions {
 
     if (odo == null) {
-      throw new Exception("No previous Odometer exits.");
+      throw new OdometerExceptions("No previous Odometer exits.");
 
     }
     return odo;

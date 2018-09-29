@@ -1,31 +1,21 @@
 package ca.mcgill.ecse211.lab3;
-//import ca.mcgill.ecse211.odometer.Odometer;
-//import ca.mcgill.ecse211.odometer.OdometerExceptions;
-import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.Port;
-import lejos.hardware.sensor.EV3ColorSensor;
-import lejos.hardware.sensor.EV3UltrasonicSensor;
-import lejos.hardware.sensor.SensorModes;
-import lejos.robotics.SampleProvider;
+
 
 public class Navigation extends Thread implements Runnable {
 
   // Parameters: adjust these for desired performance
 
-  private static final int BAND_CENTER = 30; // Offset from the wall (cm)
-  private static final int BANDWIDTH = 3; // Width of dead band (cm)
-  private static final int MOTOR_LOW = 100; // Speed of slower rotating wheel (deg/sec)
   private static final int MOTOR_HIGH = 200; // Speed of the faster rotating wheel (deg/seec)
   private static final int ROTATE_SPEED = 150;
   private static final TextLCD lcd = LocalEV3.get().getTextLCD();
   public static final double WHEEL_RAD = 2.2;
+  public static final double SQUARE_SIZE = 30.48;
   public static final double TRACK = 13.72;
-  double[] path= {60, 30,30, 30,30, 60,60, 0};
-  private static Navigation nav;
-  private boolean navigating = false;
+  double[] path= {0, 60,     30, 30,     60, 60,     60, 0};
 
   
   //Motors and distance sensor
@@ -33,7 +23,7 @@ public class Navigation extends Thread implements Runnable {
   public static final EV3LargeRegulatedMotor leftMotor =
       new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
   public static final EV3LargeRegulatedMotor rightMotor =
-      new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
+      new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
 
 
   
@@ -62,17 +52,8 @@ public class Navigation extends Thread implements Runnable {
     odoThread.start();
     //Thread odoCorrectionThread = new Thread(odometryCorrection);
     //odoCorrectionThread.start();
+    odometer.setXYT(0, 0, 0);
 
-    
-    @SuppressWarnings("resource") // Because we don't bother to close this resource
-    SensorModes usSensor = new EV3UltrasonicSensor(usPort); // usSensor is the instance
-    SampleProvider usDistance = usSensor.getMode("Distance"); // usDistance provides samples from this instance
-    float[] usData = new float[usDistance.sampleSize()]; // usData is the buffer in which data are returned
-    UltrasonicPoller usPoller = null; // the selected controller on each cycle
-    usPoller = new UltrasonicPoller(usDistance, usData);
-    // Start the poller thread
-    usPoller.start();
-    
     for(int index = 0 ; index < path.length - 3; index += 2 ) {
     	System.out.print("FUCK DPM");
       travelTo(path[index], path[index+1]);
@@ -83,9 +64,7 @@ public class Navigation extends Thread implements Runnable {
 
 	public void travelTo(double x, double y) {
 		// Define variables
-		double odometer[] = { 0, 0, 0 }, absAngle = 0, len = 0, deltaX = 0, deltaY = 0;
-
-	
+		double odometer[] = { 0, 0, 0 }, absAngle = 0, dist = 0, deltaX = 0, deltaY = 0;
 		
 		// Set navigating to true
 		navigating = true;
@@ -99,7 +78,8 @@ public class Navigation extends Thread implements Runnable {
 		}
 
 		// Convert X & Y coordinates to actual length (cm)
-		
+		x = x*SQUARE_SIZE;
+		y = y*SQUARE_SIZE;
 
 		// Set odometer reading angle as prev angle as well
 		prevAngle = odometer[2];
@@ -107,9 +87,9 @@ public class Navigation extends Thread implements Runnable {
 		// Get displacement to travel on X and Y axis
 		deltaX = x - odometer[0];
 		deltaY = y - odometer[1];
-
+		
 		// Displacement to point (hypothenuse)
-		len = Math.hypot(Math.abs(deltaX), Math.abs(deltaY));
+		dist = Math.hypot(Math.abs(deltaX), Math.abs(deltaY));
 
 		// Get absolute angle the robot must be facing
 		absAngle = Math.toDegrees(Math.atan2(deltaX, deltaY));
@@ -125,9 +105,14 @@ public class Navigation extends Thread implements Runnable {
 		leftMotor.setSpeed(MOTOR_HIGH);
 		rightMotor.setSpeed(MOTOR_HIGH);
 
+		
 		// Move distance to the waypoint after robot has adjusted angle
-				leftMotor.rotate(convertDistance(WHEEL_RAD, len), true);
-				rightMotor.rotate(convertDistance(WHEEL_RAD, len), false);
+		leftMotor.rotate(convertDistance(WHEEL_RAD, dist), true);
+		rightMotor.rotate(convertDistance(WHEEL_RAD, dist), false);
+		
+		System.out.println(path[0] + "" + path[1]);
+		System.out.println(odometer[0] + "" + odometer[1]);
+
 	}
 	/**
 	 * This method causes the robot to turn (on point) to the absolute heading theta
@@ -164,6 +149,12 @@ public class Navigation extends Thread implements Runnable {
 			rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, deltaAngle), false);
 		}
 
+	}
+	
+	static boolean navigating = false;
+
+	public static boolean isNavigating() {
+		return navigating;
 	}
 
 /*
@@ -271,12 +262,12 @@ public class Navigation extends Thread implements Runnable {
     return convertDistance(radius, Math.PI * width * angle / 360.0);
   }
 
-
+/*
   // TODO this method returns true if another thread has called travelTo() or turnTo()
   // and the method has yet to return; false otherwise.
   boolean isNavigating() {
     return false;
 
   }
-
+*/
 }

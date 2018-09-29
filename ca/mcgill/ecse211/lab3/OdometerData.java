@@ -59,7 +59,7 @@ public class OdometerData {
    * @return An OdometerData object
    * @throws OdometerExceptions
    */
-  public synchronized static OdometerData getOdometerData() throws Exception {
+  public synchronized static OdometerData getOdometerData() throws OdometerExceptions {
     if (odoData != null) { // Return existing object
       return odoData;
     } else if (numberOfIntances < MAX_INSTANCES) { // create object and
@@ -68,7 +68,7 @@ public class OdometerData {
       numberOfIntances += 1;
       return odoData;
     } else {
-      throw new Exception("Only one intance of the Odometer can be created.");
+      throw new OdometerExceptions("Only one intance of the Odometer can be created.");
     }
 
   }
