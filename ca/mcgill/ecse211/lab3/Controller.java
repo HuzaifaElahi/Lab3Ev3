@@ -19,7 +19,7 @@ public class Controller {
 	static int[] path3 = {1, 0,     2, 1,     0, 2,     0, 2,   1, 1};
 	static int[] path4 = {0, 1,     1, 2,     1, 0,     2, 1,   2, 2};
 	static int[] finalPath;
-
+	
 	public static void main(String[] args) throws Exception {
 		
 		int buttonChoice;
@@ -76,11 +76,10 @@ public class Controller {
 		    }
 		
 		
-		Navigation nav = new Navigation(finalPath);
+		NavWithObstacle nav = new NavWithObstacle(finalPath);
 		nav.start();
 
-		while (Button.waitForAnyPress() != Button.ID_ESCAPE)
-			;
+		while (Button.waitForAnyPress() != Button.ID_ESCAPE);
 		System.exit(0);
 
 
