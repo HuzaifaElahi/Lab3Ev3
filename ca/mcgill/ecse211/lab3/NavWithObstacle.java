@@ -8,29 +8,36 @@ import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
 
-
+/**
+ * This is the Navigation class which extends Thread and implements
+ * Runnable and Ultrasonic Controller. It uses the Ultrasonic sensor
+ * to handle cases where an object is detected in the path of the robot 
+ * and otherwise travels to the selected waypoints that are to it by
+ * Controller in the NavWithObstacle constructor
+ * 
+ * @author Huzaifa, Jake
+ * 
+ */
 public class NavWithObstacle extends Thread implements Runnable, UltrasonicController {
 
-	// Parameters: adjust these for desired performance
+	
+	// Parameters: Can adjust these for desired performance
+	private static final int MOTOR_HIGH = 200;      // Speed of the faster rotating wheel (deg/seec)
+	private static final int MOTOR_LOW = 100;       // Speed of the faster rotating wheel (deg/seec)
+	private static final int ROTATE_SPEED = 150;    // Speed upon rotation
+	private boolean isDanger = false;               // If object detected
 
-	private static final int MOTOR_HIGH = 200; // Speed of the faster rotating wheel (deg/seec)
-	private static final int MOTOR_LOW = 100; // Speed of the faster rotating wheel (deg/seec)
-	private static final int ROTATE_SPEED = 150;
-	private static final int bandWidth = 2;
-	private static final int bandCenter = 15;
-	private boolean isDanger = false;
-
-	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
-	public static final double WHEEL_RAD = 2.2;
-	public static final double SQUARE_SIZE = 30.48;
-	public static final double TRACK = 13.72;
+	private static final TextLCD lcd = LocalEV3.get().getTextLCD();     // Lcd screen
+	public static final double WHEEL_RAD = 2.2;                         // Radius of the wheel
+	public static final double SQUARE_SIZE = 30.48;                     // Size of tiles
+	public static final double TRACK = 13.72;                           // Distance from wheel to wheel
 	int[] path;
-	SensorModes usSensor = new EV3UltrasonicSensor(usPort); // usSensor is the instance
-	SampleProvider usDistance = usSensor.getMode("Distance"); // usDistance provides samples 
-	float[] usData = new float[usDistance.sampleSize()]; // usData is the buffer for data
-	UltrasonicPoller usPoller = new UltrasonicPoller(usDistance, usData, this);
+	SensorModes usSensor = new EV3UltrasonicSensor(usPort);                      // usSensor is the instance
+	SampleProvider usDistance = usSensor.getMode("Distance");                    // usDistance provides samples 
+	float[] usData = new float[usDistance.sampleSize()];                         // usData is the buffer for data
+	UltrasonicPoller usPoller = new UltrasonicPoller(usDistance, usData, this);  // Instantiate poller
 
-	//Motors and distance sensor
+	//Motors and distance sensor initialized
 	private static final Port usPort = LocalEV3.get().getPort("S1");
 	public static final EV3LargeRegulatedMotor leftMotor =
 			new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
@@ -39,41 +46,55 @@ public class NavWithObstacle extends Thread implements Runnable, UltrasonicContr
 
 	// Variables for odometer
 	Odometer odometer = null;
-
 	private int distance;
+	private static double prevAngle = 0;
+	static boolean navigating = false;
 
 
+	/**
+	 * Contructor, takes in and sets path passed by user
+	 * selection in Controller class
+	 * 
+	 * @param finalPath
+	 */
 	public NavWithObstacle(int ... finalPath) {
 		this.path = finalPath;
 	}
 
 
+	/** 
+	 * Run method, runs when thread is initialized
+	 * 
+	 * @return void
+	 */
 	public void run() {
-		usPoller.start();
+		usPoller.start();     // Start poller thread
 
+		//Fetch odometer
 		try {
 			odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		try {
-			//odometryCorrection = new OdometryCorrection();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		Thread odoThread = new Thread(odometer);
+		Thread odoThread = new Thread(odometer);    // Start odometer thread
 		odoThread.start();
-		odometer.setXYT(0, 0, 0);
+		odometer.setXYT(0, 0, 0);    // Initialize odometer
 
+		// Call travel to on every waypoint
 		for(int index = 0 ; index < path.length - 1;) {
 			travelTo(path[index++], path[index++]);
 		} 
 	}
 
-	private static double prevAngle = 0;
-
+	/**
+	 * This method makes robot move in the direction of the
+	 * waypoint whose coordinates are passed as arguments
+	 * 
+	 * @param x
+	 * @param y
+	 * @return void
+	 */
 	public void travelTo(double x, double y) {
 		// Define variables
 		double odometer[] = { 0, 0, 0 }, absAngle = 0, dist = 0, deltaX = 0, deltaY = 0;
@@ -85,7 +106,6 @@ public class NavWithObstacle extends Thread implements Runnable, UltrasonicContr
 		try {
 			odometer = Odometer.getOdometer().getXYT();
 		} catch (Exception e) {
-			// Do nothing lol
 			e.printStackTrace();
 		}
 
@@ -123,12 +143,17 @@ public class NavWithObstacle extends Thread implements Runnable, UltrasonicContr
 		rightMotor.rotate(convertDistance(WHEEL_RAD, dist), false);
 
 	}
+	
 	/**
 	 * This method causes the robot to turn (on point) to the absolute heading theta
+	 * 
+	 * @param theta
+	 * @return void
 	 */
 	public static void turnTo(double theta) {
 		boolean turnLeft = false;
 		double deltaAngle = 0;
+		
 		// Get change in angle we want
 		deltaAngle = theta - prevAngle;
 
@@ -160,8 +185,11 @@ public class NavWithObstacle extends Thread implements Runnable, UltrasonicContr
 
 	}
 
-	static boolean navigating = false;
-
+	/**
+	 * This method returns the static boolean, navigating
+	 * 
+	 * @return boolean
+	 */
 	public static boolean isNavigating() {
 		return navigating;
 	}
@@ -190,15 +218,29 @@ public class NavWithObstacle extends Thread implements Runnable, UltrasonicContr
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
 
+	/** 
+	 * This method overrides the method in Ultrasonic Controller and 
+	 * updates the inDanger boolean if an object is detected
+	 * within 10 cm of the sensor
+	 * 
+	 * @param distance
+	 * @return void
+	 * 
+	 */
 	@Override
 	public void processUSData(int distance) {
 		this.distance = distance;
-		// TODO: process a movement based on the us distance passed in (BANG-BANG style)
 		if(distance < 10) {
 			isDanger = true;
 		} 		
 	}
 
+	/** 
+	 * This method overrides the method in Ultrasonic Controller
+	 * and returns us the distance of the object detected by the sensor
+	 * 
+	 * @return int
+	 */
 	@Override
 	public int readUSDistance() {
 		return this.distance;
